@@ -18,6 +18,7 @@ class DatabaseSeeder extends Seeder
             PermissionTableSeeder::class,
             UsersTableSeeder::class,
             SubjectsTableSeeder::class,
+            QuestionsTableSeeder::class,
         ]);
     }
 }
