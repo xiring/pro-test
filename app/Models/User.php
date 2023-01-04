@@ -2,16 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Traits\Search\BasicFilter;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Sanctum\HasApiTokens;
+use Laravel\Passport\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, BasicFilter;
 
+
+    /**
+     * Super User
+     */
+    const SUPER_ADMIN = 'Teacher';
+
+    /**
+     * @var string
+     */
+    protected string $guard_name = 'api';
     /**
      * The attributes that are mass assignable.
      *
@@ -21,6 +32,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'user_type'
     ];
 
     /**
@@ -41,4 +53,31 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    /**
+     * @var string[]
+     */
+    protected $appends = ['role_id'];
+
+
+    /**
+     * @return bool
+     */
+    public function isSuper(): bool
+    {
+        return $this->getAttribute('user_type') == 'teacher';
+    }
+
+    /**
+     * @return int
+     */
+    public function getRoleIdAttribute()
+    {
+        return $this->roles ? $this->roles->first()->id : 0;
+    }
+
+    public function getUserRoles()
+    {
+        return $this->roles ? $this->roles[0]->name : "";
+    }
 }
